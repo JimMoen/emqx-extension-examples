@@ -15,6 +15,9 @@
 
 from concurrent import futures
 import logging
+import time
+import datetime
+import sys
 from multiprocessing.sharedctypes import Value
 
 import grpc
@@ -22,9 +25,15 @@ import grpc
 import exhook_pb2
 import exhook_pb2_grpc
 
+def print_message(event_name, request):
+    print(f'{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")}: ',
+          f'\033[0;36m '+ str(event_name)+ '\033[0m',
+          request)
+
 class HookProvider(exhook_pb2_grpc.HookProviderServicer):
 
     def OnProviderLoaded(self, request, context):
+        print_message(sys._getframe().f_code.co_name, request)
         specs = [exhook_pb2.HookSpec(name="client.connect"),
                  exhook_pb2.HookSpec(name="client.connack"),
                  exhook_pb2.HookSpec(name="client.connected"),
@@ -42,7 +51,7 @@ class HookProvider(exhook_pb2_grpc.HookProviderServicer):
                  exhook_pb2.HookSpec(name="session.takeovered"),
                  exhook_pb2.HookSpec(name="session.terminated"),
 
-                 exhook_pb2.HookSpec(name="message.publish"),
+                 exhook_pb2.HookSpec(name="message.publish", topics=['topic/#']),
                  exhook_pb2.HookSpec(name="message.delivered"),
                  exhook_pb2.HookSpec(name="message.acked"),
                  exhook_pb2.HookSpec(name="message.dropped")
@@ -59,9 +68,11 @@ class HookProvider(exhook_pb2_grpc.HookProviderServicer):
         return exhook_pb2.EmptySuccess()
 
     def OnClientConnected(self, request, context):
+        print_message(sys._getframe().f_code.co_name, request)
         return exhook_pb2.EmptySuccess()
 
     def OnClientDisconnected(self, request, context):
+        print_message(sys._getframe().f_code.co_name, request)
         return exhook_pb2.EmptySuccess()
 
     def OnClientAuthenticate(self, request, context):
@@ -79,6 +90,7 @@ class HookProvider(exhook_pb2_grpc.HookProviderServicer):
         return exhook_pb2.EmptySuccess()
 
     def OnSessionCreated(self, request, context):
+        print_message(sys._getframe().f_code.co_name, request)
         return exhook_pb2.EmptySuccess()
 
     def OnSessionSubscribed(self, request, context):
@@ -91,12 +103,15 @@ class HookProvider(exhook_pb2_grpc.HookProviderServicer):
         return exhook_pb2.EmptySuccess()
 
     def OnSessionDiscarded(self, request, context):
+        print_message(sys._getframe().f_code.co_name, request)
         return exhook_pb2.EmptySuccess()
 
     def OnSessionTakeovered(self, request, context):
+        print_message(sys._getframe().f_code.co_name, request)
         return exhook_pb2.EmptySuccess()
 
     def OnSessionTerminated(self, request, context):
+        print_message(sys._getframe().f_code.co_name, request)
         return exhook_pb2.EmptySuccess()
 
     def OnMessagePublish(self, request, context):
